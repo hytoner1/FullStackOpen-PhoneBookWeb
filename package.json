@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Warning: no test specified\" && exit 0",
-    "start": "node index.js"
+    "start": "node index.js",
+    "start-frontend": "cd ../../Part2/phonebook/ && npm run start",
+    "build-frontend": "cd ../../Part2/phonebook && rm -rf ./build && npm run build --prod && cp -r ./build ../../Part3/PhonebookWeb/"
   },
   "keywords": [],
   "author": "",
