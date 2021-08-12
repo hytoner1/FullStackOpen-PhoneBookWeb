@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Warning: no test specified\" && exit 0",
     "start": "node index.js",
+    "start-debug": "node --inspect index.js",
     "start-frontend": "cd ../../Part2/phonebook/ && npm run start",
     "build-frontend": "cd ../../Part2/phonebook && rm -rf ./build && npm run build --prod && cp -r ./build ../../Part3/PhonebookWeb/"
   },
@@ -16,7 +17,7 @@
     "cors": "^2.8.5",
     "dotenv": "^8.6.0",
     "express": "^4.17.1",
-    "mongoose": "^5.11.11",
+    "mongoose": "^5.13.6",
     "morgan": "^1.10.0"
   }
 }
