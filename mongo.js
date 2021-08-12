@@ -24,7 +24,7 @@ else {
 let db_conn_string = process.env.DB_CONN_STRING;
 db_conn_string = db_conn_string.replace('<password>', password);
 
-mongooseSettings = {
+const mongooseSettings = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false,

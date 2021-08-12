@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const app = express();
 
@@ -11,6 +13,7 @@ app.use(express.json());
 morgan.token('body', (req, res) => JSON.stringify(req.body));
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :body'));
 
+const Person = require('./models/person');
 
 let persons =
   [
@@ -43,7 +46,9 @@ app.get('/',
   });
 
 app.get('/api/persons', (request, response) => {
-  response.json(persons);
+  Person.find({}).then(result => {
+    response.json(result);
+  })
 });
 
 app.get('/info', (request, response) => {
@@ -53,14 +58,9 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id);
-  const person = persons.find(person => person.id === id);
-
-  if (person) {
+  Person.findById(request.params.id).then(person => {
     response.json(person);
-  } else {
-    response.status(404).end();
-  }
+  });
 })
 
 // #endregion GETTERS
@@ -75,31 +75,40 @@ app.delete('/api/persons/:id', (request, response) => {
 })
 
 app.post('/api/persons', (request, response) => {
-  const person = request.body;
+  const body = request.body;
 
-  if (!person.name) {
+  if (!body.name) {
     return response.status(400).json({
       error: 'Content name missing'
     });
   }
-  if (!person.number) {
+  if (!body.number) {
     return response.status(400).json({
       error: 'Content number missing'
     });
   }
-  if (persons.map(person => person.name).includes(person.name)) {
-    return response.status(409).json({
-      error: 'Conflict: Name must be unique'
-    });
-  }
-  
-  person.id = Math.floor(Math.random() * 1e6);
-  console.log('New person: ', person);
+  //if (persons.map(person => person.name).includes(person.name)) {
+  //  return response.status(409).json({
+  //    error: 'Conflict: Name must be unique'
+  //  });
+  //}
 
-  persons = persons.concat(person);
-  console.log('Persons: ', persons);
+  const person = new Person({
+    name: body.name,
+    number: body.number
+  });
 
-  response.json(person);
+  person.save().then(savedPerson => {
+    response.json(savedPerson);
+  });
+
+  //person.id = Math.floor(Math.random() * 1e6);
+  //console.log('New person: ', person);
+
+  //persons = persons.concat(person);
+  //console.log('Persons: ', persons);
+
+  //response.json(person);
 });
 
 const unknownEndpoint = (request, response) => {
