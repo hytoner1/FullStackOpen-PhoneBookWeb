@@ -10,54 +10,50 @@ app.use(express.static('build'));
 app.use(cors());
 app.use(express.json());
 
-morgan.token('body', (req, res) => JSON.stringify(req.body));
+morgan.token('body', (req) => JSON.stringify(req.body));
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :body'));
 
 const Person = require('./models/person');
 
 // #region GETTERS
-app.get('/',
-  (request, response) => {
-    res.send('<h1>Hello, World!</h1>');
-  });
 
-app.get('/api/persons', (request, response) => {
+app.get('/api/persons', (request, response, next) => {
   Person.find({})
     .then(result => {
       response.json(result);
     })
-    .catch(error => next(error))
+    .catch(error => next(error));
 });
 
-app.get('/info', (request, response) => {
+app.get('/info', (request, response, next) => {
   Person.find({})
     .then(result => {
       let res = 'Phonebook has info for ' + result.length + ' people';
       res += '<p> ' + Date(Date.now()).toString() + '<p>';
       response.send(res);
     })
-    .catch(error => next(error))
+    .catch(error => next(error));
 });
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
     .then(person => {
       response.json(person);
     })
-    .catch(error => next(error))
+    .catch(error => next(error));
 });
 
 // #endregion GETTERS
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
-    .then(result => {
-      response.status(204).end()
+    .then(() => {
+      response.status(204).end();
     })
-    .catch(error => next(error))
+    .catch(error => next(error));
 });
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body;
 
   if (!body.name) {
@@ -80,24 +76,19 @@ app.post('/api/persons', (request, response) => {
     .then(savedPerson => {
       response.json(savedPerson);
     })
-    .catch(error => next(error))
+    .catch(error => next(error));
 });
 
 app.put('/api/persons/:id', (request, response, next) => {
   const body = request.body;
   console.log('Put request:', body);
 
-  const person = new Person({
-    name: body.name,
-    number: body.number
-  });
-
-  Person.findByIdAndUpdate(request.params.id, {number: body.number}, {new: true})
+  Person.findByIdAndUpdate(request.params.id, { number: body.number }, { new: true })
     .then(updatedPerson => {
-      response.json(updatedPerson)
+      response.json(updatedPerson);
     })
-    .catch(error => next(error))
-})
+    .catch(error => next(error));
+});
 
 // #region Middleware
 
@@ -112,10 +103,12 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' });
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message });
   }
 
   next(error);
-}
+};
 
 app.use(errorHandler);
 

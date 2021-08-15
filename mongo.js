@@ -48,7 +48,7 @@ if (addNewPerson) {
     number: newNumber
   });
 
-  newPerson.save().then(result => {
+  newPerson.save().then(() => {
     console.log(`Added ${newPerson.name}, number: ${newPerson.number} to phonebook`);
     mongoose.connection.close();
   });
@@ -58,8 +58,8 @@ if (addNewPerson) {
   MongoosePerson.find({}).then(result => {
     result.forEach(person => {
       console.log(person.name, person.number);
-    })
-    mongoose.connection.close()
+    });
+    mongoose.connection.close();
   });
 }
 
